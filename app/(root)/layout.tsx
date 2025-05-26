@@ -18,7 +18,7 @@ export default function RootLayout({
 			<body className={` antialiased`}>
 				<SidebarProvider>
 					<AppSidebar />
-					<main>
+					<main className="w-full">
 						<SidebarTrigger />
 						{children}
 					</main>

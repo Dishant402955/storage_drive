@@ -17,6 +17,7 @@ import {
 	SidebarMenuItem,
 } from "@/components/ui/sidebar";
 import { usePathname } from "next/navigation";
+import Link from "next/link";
 
 // Menu items.
 const items = [
@@ -64,18 +65,22 @@ export function AppSidebar() {
 									key={item.title}
 									className={`${
 										pathname === item.url
-											? "bg-neutral-800 text-white rounded-2xl"
+											? "bg-neutral-800 text-white rounded-2xl hover:bg-neutral-700 hover:text-white"
 											: ""
 									}`}
 								>
 									<SidebarMenuButton
 										asChild
-										className={`justify-start items-center ml-6 gap-x-4 text-lg flex p-1.5 my-2`}
+										className={`justify-start items-center text-lg flex  my-2 pl-8 gap-x-4 ${
+											pathname === item.url
+												? " hover:bg-neutral-700 hover:text-white"
+												: ""
+										}`}
 									>
-										<a href={item.url}>
+										<Link href={item.url}>
 											<item.icon />
 											<span>{item.title}</span>
-										</a>
+										</Link>
 									</SidebarMenuButton>
 								</SidebarMenuItem>
 							))}
