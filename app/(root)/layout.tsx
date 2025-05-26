@@ -2,6 +2,7 @@ import type { Metadata } from "next";
 import "../globals.css";
 import { SidebarProvider, SidebarTrigger } from "@/components/ui/sidebar";
 import { AppSidebar } from "@/components/app-sidebar";
+import Navbar from "@/components/navbar";
 
 export const metadata: Metadata = {
 	title: "Storage Drive",
@@ -19,7 +20,10 @@ export default function RootLayout({
 				<SidebarProvider>
 					<AppSidebar />
 					<main className="w-full">
-						<SidebarTrigger />
+						<div className="flex w-full">
+							<SidebarTrigger />
+							<Navbar />
+						</div>
 						{children}
 					</main>
 				</SidebarProvider>
