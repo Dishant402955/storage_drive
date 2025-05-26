@@ -2,7 +2,16 @@ import type { NextConfig } from "next";
 
 const nextConfig: NextConfig = {
 	images: {
-		remotePatterns: [],
+		remotePatterns: [
+			{
+				protocol: "https",
+				hostname: "cloud.appwrite.io",
+			},
+			{
+				protocol: "https",
+				hostname: "encrypted-tbn0.gstatic.com",
+			},
+		],
 	},
 };
 

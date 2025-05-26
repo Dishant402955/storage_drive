@@ -2,29 +2,40 @@ import type { Metadata } from "next";
 import "../globals.css";
 import { SidebarProvider, SidebarTrigger } from "@/components/ui/sidebar";
 import { AppSidebar } from "@/components/app-sidebar";
-import Navbar from "@/components/navbar";
+import { getCurrentUser } from "@/lib/actions/users.action";
+import { redirect } from "next/navigation";
+import FileUpload from "@/components/file-upload";
+import Search from "@/components/search";
+import LogoutButton from "@/components/logout-button";
 
 export const metadata: Metadata = {
 	title: "Storage Drive",
 	description: "A Storage Solution to store all of your Docs",
 };
 
-export default function RootLayout({
+export default async function RootLayout({
 	children,
 }: Readonly<{
 	children: React.ReactNode;
 }>) {
+	const user = await getCurrentUser();
+
+	if (!user) {
+		return redirect("/login");
+	}
+
 	return (
 		<html lang="en" suppressHydrationWarning>
 			<body className={` antialiased`}>
 				<SidebarProvider>
-					<AppSidebar />
+					<AppSidebar {...user} />
 					<main className="w-full">
-						<div className="flex w-full">
-							<SidebarTrigger />
-							<Navbar />
-						</div>
+						<SidebarTrigger className="h-[5%]" />
 						{children}
+
+						<FileUpload />
+						<Search />
+						<LogoutButton />
 					</main>
 				</SidebarProvider>
 			</body>

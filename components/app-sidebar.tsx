@@ -15,9 +15,11 @@ import {
 	SidebarMenu,
 	SidebarMenuButton,
 	SidebarMenuItem,
+	SidebarFooter,
 } from "@/components/ui/sidebar";
 import { usePathname } from "next/navigation";
 import Link from "next/link";
+import Image from "next/image";
 
 // Menu items.
 const items = [
@@ -48,7 +50,15 @@ const items = [
 	},
 ];
 
-export function AppSidebar() {
+export function AppSidebar({
+	fullName,
+	email,
+	Avatar,
+}: {
+	fullName: string;
+	email: string;
+	Avatar: string;
+}) {
 	const pathname = usePathname();
 
 	return (
@@ -58,7 +68,7 @@ export function AppSidebar() {
 					<SidebarGroupLabel className="w-full text-2xl my-4 flex justify-center items-center">
 						Storage Drive
 					</SidebarGroupLabel>
-					<SidebarGroupContent className="my-8">
+					<SidebarGroupContent className="my-8 flex flex-col justify-between ">
 						<SidebarMenu>
 							{items.map((item) => (
 								<SidebarMenuItem
@@ -87,6 +97,19 @@ export function AppSidebar() {
 						</SidebarMenu>
 					</SidebarGroupContent>
 				</SidebarGroup>
+				<SidebarFooter>
+					<div className="flex flex-col justify-center items-center w-full mt-10">
+						<Image
+							src={Avatar}
+							height={40}
+							width={40}
+							alt="avatar"
+							className="rounded-full"
+						/>
+						<p>{fullName}</p>
+						<p className="text-muted-foreground"> {email}</p>
+					</div>
+				</SidebarFooter>
 			</SidebarContent>
 		</Sidebar>
 	);
