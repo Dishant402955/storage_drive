@@ -1,7 +1,7 @@
 "use server";
 
 import { ID, Query } from "node-appwrite";
-import { createAdminClient } from "../appwrite";
+import { createAdminClient, createSessionClient } from "../appwrite";
 import { appwriteConfig } from "../appwrite/config";
 import { parseStringify } from "../utils";
 import { cookies } from "next/headers";
@@ -87,5 +87,35 @@ export const verifySecret = async ({
 	} catch (error) {
 		console.log(error);
 		throw new Error("Can't Verify Secret, Try Again");
+	}
+};
+
+export const getCurrentUser = async () => {
+	const { database, account } = await createSessionClient();
+
+	const result = account.get();
+
+	const user = await database.listDocuments(
+		appwriteConfig.databaseId,
+		appwriteConfig.usersCollectionId,
+		[Query.equal("accountId", (await result).$id)]
+	);
+
+	if (user.total <= 0) {
+		return null;
+	}
+
+	return parseStringify(user.documents[0]);
+};
+
+export const signOutUser = async () => {
+	const { account } = await createSessionClient();
+
+	try {
+		await account.deleteSession("current");
+		(await cookies()).delete("appwrite-session");
+	} catch (error) {
+		console.log("Failed to signout");
+		throw new Error("Failed to sign-out User try again");
 	}
 };
