@@ -16,6 +16,8 @@ import {
 import { Input } from "@/components/ui/input";
 import { useState, useTransition } from "react";
 import Link from "next/link";
+import { createAccount } from "@/lib/actions/users.action";
+import OTPModel from "./OTPModel";
 
 const AuthFormSchema = (formType: "login" | "register") => {
 	return z.object({
@@ -30,6 +32,7 @@ const AuthFormSchema = (formType: "login" | "register") => {
 const AuthForm = ({ type }: { type: "login" | "register" }) => {
 	const [isPending, startTransition] = useTransition();
 	const [error, setError] = useState<string | undefined>();
+	const [accountId, setAccountId] = useState(null);
 
 	const formSchema = AuthFormSchema(type);
 	const form = useForm<z.infer<typeof formSchema>>({
@@ -42,68 +45,83 @@ const AuthForm = ({ type }: { type: "login" | "register" }) => {
 
 	function onSubmit(values: z.infer<typeof formSchema>) {
 		setError("");
-		startTransition(() => {
-			console.log(values);
+		startTransition(async () => {
+			try {
+				console.log(values);
+				const user = await createAccount({
+					fullName: values.fullName || "",
+					email: values.email,
+				});
+
+				setAccountId(user.accountId);
+			} catch (error) {
+				setError("Failed to create account, try again");
+			}
 		});
 	}
 
 	return (
-		<Form {...form}>
-			<form
-				onSubmit={form.handleSubmit(onSubmit)}
-				className="space-y-8 flex flex-col text-center w-96 border-2 p-8 rounded-lg shadow-2xl max-w-[80%]"
-			>
-				<h1 className="text-2xl font-bold">
-					{type === "login" ? "login" : "Register"}
-				</h1>
+		<>
+			<Form {...form}>
+				<form
+					onSubmit={form.handleSubmit(onSubmit)}
+					className="space-y-8 flex flex-col text-center w-96 border-2 p-8 rounded-lg shadow-2xl max-w-[80%]"
+				>
+					<h1 className="text-2xl font-bold">
+						{type === "login" ? "login" : "Register"}
+					</h1>
 
-				{type === "register" ? (
+					{type === "register" ? (
+						<FormField
+							control={form.control}
+							name="fullName"
+							render={({ field }) => (
+								<FormItem>
+									<FormLabel>Full Name</FormLabel>
+									<FormControl>
+										<Input placeholder="Enter Your Full name" {...field} />
+									</FormControl>
+									<FormMessage />
+								</FormItem>
+							)}
+							disabled={isPending}
+						/>
+					) : null}
 					<FormField
 						control={form.control}
-						name="fullName"
+						name="email"
 						render={({ field }) => (
 							<FormItem>
-								<FormLabel>Full Name</FormLabel>
+								<FormLabel>Email</FormLabel>
 								<FormControl>
-									<Input placeholder="Enter Your Full name" {...field} />
+									<Input placeholder="Enter Your email" {...field} />
 								</FormControl>
 								<FormMessage />
 							</FormItem>
 						)}
 						disabled={isPending}
 					/>
-				) : null}
-				<FormField
-					control={form.control}
-					name="email"
-					render={({ field }) => (
-						<FormItem>
-							<FormLabel>Email</FormLabel>
-							<FormControl>
-								<Input placeholder="Enter Your email" {...field} />
-							</FormControl>
-							<FormMessage />
-						</FormItem>
-					)}
-					disabled={isPending}
-				/>
 
-				{error ? <p className="text-destructive">{error}</p> : null}
-				<Button type="submit" disabled={isPending}>
-					{type === "login" ? "login" : "register"}
-				</Button>
+					{error ? <p className="text-destructive">{error}</p> : null}
+					<Button type="submit" disabled={isPending}>
+						{type === "login" ? "login" : "register"}
+					</Button>
 
-				<div>
-					<Link href={type === "login" ? "/register" : "login"}>
-						<Button variant={"link"} className="cursor-pointer">
-							{type === "login"
-								? "Don't have An Account?"
-								: "Already have An Account ?"}
-						</Button>
-					</Link>
-				</div>
-			</form>
-		</Form>
+					<div>
+						<Link href={type === "login" ? "/register" : "login"}>
+							<Button variant={"link"} className="cursor-pointer">
+								{type === "login"
+									? "Don't have An Account?"
+									: "Already have An Account ?"}
+							</Button>
+						</Link>
+					</div>
+				</form>
+			</Form>
+			{accountId ? (
+				<OTPModel email={form.getValues("email")} accountId={accountId} />
+			) : null}
+		</>
 	);
 };
 
