@@ -4,6 +4,7 @@ import { ID, Query } from "node-appwrite";
 import { createAdminClient } from "../appwrite";
 import { appwriteConfig } from "../appwrite/config";
 import { parseStringify } from "../utils";
+import { cookies } from "next/headers";
 
 const getUserByEmail = async (email: string) => {
 	const { database } = await createAdminClient();
@@ -17,7 +18,7 @@ const getUserByEmail = async (email: string) => {
 	return result.total > 0 ? result.documents[0] : null;
 };
 
-const sendEmailOTP = async ({ email }: { email: string }) => {
+export const sendEmailOTP = async ({ email }: { email: string }) => {
 	const { account } = await createAdminClient();
 
 	try {
@@ -26,7 +27,6 @@ const sendEmailOTP = async ({ email }: { email: string }) => {
 		return session.userId;
 	} catch (error) {
 		console.log(error);
-		return { error: "Failed To send Email OTP" };
 	}
 };
 
@@ -62,4 +62,30 @@ export const createAccount = async ({
 	}
 
 	return parseStringify({ accountId });
+};
+
+export const verifySecret = async ({
+	accountId,
+	password,
+}: {
+	accountId: string;
+	password: string;
+}) => {
+	try {
+		const { account } = await createAdminClient();
+
+		const session = await account.createSession(accountId, password);
+
+		(await cookies()).set("appwrite-session", session.secret, {
+			path: "/",
+			httpOnly: true,
+			secure: true,
+			sameSite: "strict",
+		});
+
+		return parseStringify({ sessionId: session.$id });
+	} catch (error) {
+		console.log(error);
+		throw new Error("Can't Verify Secret, Try Again");
+	}
 };
