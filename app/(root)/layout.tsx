@@ -7,6 +7,7 @@ import { redirect } from "next/navigation";
 import FileUpload from "@/components/file-upload";
 import Search from "@/components/search";
 import LogoutButton from "@/components/logout-button";
+import { Toaster } from "sonner";
 
 export const metadata: Metadata = {
 	title: "Storage Drive",
@@ -38,6 +39,7 @@ export default async function RootLayout({
 						<LogoutButton />
 					</main>
 				</SidebarProvider>
+				<Toaster />
 			</body>
 		</html>
 	);
