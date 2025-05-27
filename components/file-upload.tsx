@@ -1,6 +1,6 @@
 "use client";
 
-import { cn } from "@/lib/utils";
+import { cn, getFileType } from "@/lib/utils";
 import React, { useRef, useState } from "react";
 import { motion } from "motion/react";
 import { IconUpload } from "@tabler/icons-react";
@@ -45,7 +45,7 @@ export const FileUpload = ({
 	};
 
 	const { getRootProps, isDragActive } = useDropzone({
-		multiple: false,
+		multiple: true, // ✅ Allow multiple files
 		noClick: true,
 		onDrop: handleFileChange,
 		onDropRejected: (error) => {
@@ -55,7 +55,7 @@ export const FileUpload = ({
 
 	return (
 		<div
-			className="w-[20%] bg-neutral-700 rounded-lg pb-4 px-2 absolute bottom-10 right-10 max-[1300px]:right-[30%] max-[1300px]:w-[40%] max-[900px]:w-[70%] max-[900px]:right-[15%]"
+			className="w-[30%] bg-neutral-700 rounded-lg pb-4 px-2 absolute bottom-10 right-10 max-[1300px]:right-[25%] max-[1300px]:w-[50%] max-[900px]:w-[80%] max-[900px]:right-[10%]"
 			{...getRootProps()}
 		>
 			<motion.div
@@ -67,41 +67,54 @@ export const FileUpload = ({
 					ref={fileInputRef}
 					id="file-upload-handle"
 					type="file"
+					multiple // ✅ Allow selecting multiple files manually
 					onChange={(e) => handleFileChange(Array.from(e.target.files || []))}
 					className="hidden"
 				/>
 				<div className="flex flex-col items-center justify-center">
 					<div className="relative w-full my-1 max-w-xl mx-auto">
 						{files.length > 0 &&
-							files.map((file, idx) => (
-								<motion.div
-									key={"file" + idx}
-									layoutId={idx === 0 ? "file-upload" : "file-upload-" + idx}
-									className={cn(
-										"relative overflow-hidden z-40 bg-white dark:bg-neutral-900 flex flex-col items-start justify-start  py-2  px-4 mt-4 w-full mx-auto rounded-md",
-										"shadow-sm"
-									)}
-								>
-									<div className="flex justify-between w-full items-center ">
-										<motion.p
-											initial={{ opacity: 0 }}
-											animate={{ opacity: 1 }}
-											layout
-											className="text-base text-neutral-700 dark:text-neutral-300 truncate max-w-xs"
-										>
-											{file.name}
-										</motion.p>
-										<motion.p
-											initial={{ opacity: 0 }}
-											animate={{ opacity: 1 }}
-											layout
-											className="rounded-lg px-2 w-fit shrink-0 text-sm text-neutral-600 dark:bg-neutral-800 dark:text-white shadow-input"
-										>
-											{(file.size / 1024).toFixed(2)} KB
-										</motion.p>
-									</div>
-								</motion.div>
-							))}
+							files.map((file, idx) => {
+								const { type, extension } = getFileType(file.name);
+								return (
+									<motion.div
+										key={"file" + idx}
+										layoutId={idx === 0 ? "file-upload" : "file-upload-" + idx}
+										className={cn(
+											"relative overflow-hidden z-40 bg-white dark:bg-neutral-900 flex flex-col items-start justify-start  py-2  px-4 mt-4 w-full mx-auto rounded-md",
+											"shadow-sm"
+										)}
+									>
+										<div className="flex justify-between w-full items-center ">
+											<motion.p
+												initial={{ opacity: 0 }}
+												animate={{ opacity: 1 }}
+												layout
+												className="text-base text-neutral-700 dark:text-neutral-300 truncate max-w-[60%]"
+											>
+												{file.name}
+											</motion.p>
+											<motion.p
+												initial={{ opacity: 0 }}
+												animate={{ opacity: 1 }}
+												layout
+												className="rounded-lg px-2 w-fit shrink-0 text-sm text-neutral-600 dark:bg-neutral-800 dark:text-white shadow-input"
+											>
+												{(file.size / 1024).toFixed(2)} KB
+											</motion.p>
+
+											<motion.p
+												initial={{ opacity: 0 }}
+												animate={{ opacity: 1 }}
+												layout
+												className="text-base text-neutral-700 dark:text-neutral-300 truncate max-w-[30%]"
+											>
+												{type}/{extension}
+											</motion.p>
+										</div>
+									</motion.div>
+								);
+							})}
 						{!files.length && (
 							<motion.div
 								layoutId="file-upload"
