@@ -27,7 +27,7 @@ export default async function RootLayout({
 
 	return (
 		<html lang="en" suppressHydrationWarning>
-			<body className={` antialiased`}>
+			<body className={`antialiased`}>
 				<SidebarProvider>
 					<AppSidebar {...user} />
 					<main className="w-full">
@@ -36,7 +36,6 @@ export default async function RootLayout({
 
 						<FileUpload />
 						<Search />
-						<LogoutButton />
 					</main>
 				</SidebarProvider>
 				<Toaster />

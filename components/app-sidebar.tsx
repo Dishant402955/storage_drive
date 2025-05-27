@@ -90,22 +90,7 @@ export function AppSidebar(user: any) {
 					</SidebarGroupContent>
 				</SidebarGroup>
 				<SidebarFooter>
-					{/* <div className="flex justify-center flex-col items-start pl-8 w-full mt-10 gap-y-0.5">
-						<Image
-							src={
-								Avatar ||
-								"https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcQWoCQstoZnSYlNQT8BnZdscCR_RjAKQVedSA&uspq=CAU"
-							}
-							height={40}
-							width={40}
-							alt="avatar"
-							className="rounded-full"
-						/>
-
-						<p>{fullName}</p>
-						<p className="text-muted-foreground text-[0.9rem]"> {email}</p>
-					</div> */}
-					<NavUser user={user} />
+					<NavUser user={user} asChild />
 				</SidebarFooter>
 			</SidebarContent>
 		</Sidebar>
