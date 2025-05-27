@@ -16,8 +16,9 @@ import {
 import { Input } from "@/components/ui/input";
 import { useState, useTransition } from "react";
 import Link from "next/link";
-import { createAccount } from "@/lib/actions/users.action";
+import { createAccount, loginUser } from "@/lib/actions/users.action";
 import OTPModel from "./OTPModel";
+import { toast } from "sonner";
 
 const AuthFormSchema = (formType: "login" | "register") => {
 	return z.object({
@@ -47,15 +48,25 @@ const AuthForm = ({ type }: { type: "login" | "register" }) => {
 		setError("");
 		startTransition(async () => {
 			try {
-				console.log(values);
-				const user = await createAccount({
-					fullName: values.fullName || "",
-					email: values.email,
-				});
+				const user =
+					type === "register"
+						? await createAccount({
+								fullName: values.fullName || "",
+								email: values.email,
+						  })
+						: await loginUser({ email: values.email });
 
-				setAccountId(user.accountId);
+				if (user.error) {
+					setError(user.error);
+					toast.error(user.error);
+				}
+				if (user.accountId) {
+					setAccountId(user.accountId);
+					toast.success("OTP sent!");
+				}
 			} catch (error) {
-				setError("Failed to create account, try again");
+				setError("something went wrong!, try again.");
+				toast.error("Something went wrong!, try again.");
 			}
 		});
 	}

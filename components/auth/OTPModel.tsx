@@ -20,6 +20,7 @@ import {
 import { sendEmailOTP, verifySecret } from "@/lib/actions/users.action";
 import { useRouter } from "next/navigation";
 import React, { useState, useTransition } from "react";
+import { toast } from "sonner";
 
 const OTPModel = ({
 	email,
@@ -32,6 +33,7 @@ const OTPModel = ({
 
 	const [isOpen, setIsOpen] = useState(true);
 	const [password, setPassword] = useState("");
+	const [error, setError] = useState<string | undefined>();
 	const [isPending, startTransition] = useTransition();
 
 	const handleSubmit = (e: React.MouseEvent<HTMLButtonElement>) => {
@@ -41,17 +43,25 @@ const OTPModel = ({
 			try {
 				const sessionId = await verifySecret({ accountId, password });
 
-				if (sessionId) {
+				if (sessionId.error) {
+					toast.error(sessionId.error);
+					setError(sessionId.error);
+				}
+				if (sessionId.sessionId) {
 					router.push("/");
 				}
 			} catch (error) {
-				console.log("Failed to verify OTP");
+				setError("something went wrong!, try again");
+				toast.error(
+					<p className="text-destructive">Something went wrong!, try again</p>
+				);
 			}
 		});
 	};
 
 	const handleResendOTP = async () => {
 		await sendEmailOTP({ email });
+		toast.success("New OTP sent!");
 	};
 
 	return (
@@ -82,6 +92,7 @@ const OTPModel = ({
 				</InputOTP>
 
 				<AlertDialogFooter className="p-4  items-center">
+					{error ? <p className="text-destructive">{error}</p> : null}
 					<AlertDialogAction
 						className="w-[90%]"
 						onClick={handleSubmit}

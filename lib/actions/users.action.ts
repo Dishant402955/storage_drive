@@ -30,40 +30,6 @@ export const sendEmailOTP = async ({ email }: { email: string }) => {
 	}
 };
 
-export const createAccount = async ({
-	fullName,
-	email,
-}: {
-	fullName: string | undefined;
-	email: string;
-}) => {
-	const existingUser = await getUserByEmail(email);
-
-	const accountId = await sendEmailOTP({ email });
-	if (!accountId) {
-		throw new Error("Failed to send an OTP");
-	}
-
-	if (!existingUser) {
-		const { database } = await createAdminClient();
-
-		await database.createDocument(
-			appwriteConfig.databaseId,
-			appwriteConfig.usersCollectionId,
-			ID.unique(),
-			{
-				fullName,
-				email,
-				Avatar:
-					"https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcQWoCQstoZnSYlNQT8BnZdscCR_RjAKQVedSA&uspq=CAU",
-				accountId,
-			}
-		);
-	}
-
-	return parseStringify({ accountId });
-};
-
 export const verifySecret = async ({
 	accountId,
 	password,
@@ -74,24 +40,39 @@ export const verifySecret = async ({
 	try {
 		const { account } = await createAdminClient();
 
-		const session = await account.createSession(accountId, password);
+		const session = (await account.createSession(accountId, password)) as any;
 
-		(await cookies()).set("appwrite-session", session.secret, {
-			path: "/",
-			httpOnly: true,
-			secure: true,
-			sameSite: "strict",
-		});
+		if (session && session?.code === 401) {
+			return { error: "Invalid token." };
+		}
 
-		return parseStringify({ sessionId: session.$id });
-	} catch (error) {
-		console.log(error);
-		throw new Error("Can't Verify Secret, Try Again");
+		if (session.userId) {
+			(await cookies()).set("appwrite-session", session.secret, {
+				path: "/",
+				httpOnly: true,
+				secure: true,
+				sameSite: "strict",
+			});
+
+			return parseStringify({ sessionId: session.$id });
+		}
+		return { error: "Something went wrong!, try again." };
+	} catch (error: any) {
+		if (error.code === 401) {
+			return { error: "Invalid code!" };
+		}
+		return { error: "Something  wrong!, try again." };
 	}
 };
 
 export const getCurrentUser = async () => {
-	const { database, account } = await createSessionClient();
+	const res = (await createSessionClient()) as any;
+
+	if (!res?.database || !res?.account) {
+		return null;
+	}
+
+	const { database, account } = res;
 
 	const result = account.get();
 
@@ -108,8 +89,70 @@ export const getCurrentUser = async () => {
 	return parseStringify(user.documents[0]);
 };
 
+export const createAccount = async ({
+	fullName,
+	email,
+}: {
+	fullName: string | undefined;
+	email: string;
+}) => {
+	const existingUser = await getUserByEmail(email);
+
+	if (existingUser?.$id) {
+		return { error: "User already exists." };
+	}
+
+	const accountId = await sendEmailOTP({ email });
+
+	if (!accountId) {
+		return { error: "Failed to send an OTP, try again." };
+	}
+
+	if (!existingUser) {
+		const { database } = await createAdminClient();
+
+		const res = await database.createDocument(
+			appwriteConfig.databaseId,
+			appwriteConfig.usersCollectionId,
+			ID.unique(),
+			{
+				fullName,
+				email,
+				Avatar:
+					"https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcQWoCQstoZnSYlNQT8BnZdscCR_RjAKQVedSA&uspq=CAU",
+				accountId,
+			}
+		);
+
+		if (res.$id) {
+			return parseStringify({ accountId });
+		}
+	}
+
+	return { error: "Something went wrong!, try again." };
+};
+
+export const loginUser = async ({ email }: { email: string }) => {
+	try {
+		const existingUser = await getUserByEmail(email);
+
+		if (existingUser) {
+			await sendEmailOTP({ email });
+			return parseStringify({ accountId: existingUser.accountId });
+		}
+
+		return parseStringify({ error: "User not found!" });
+	} catch (error) {
+		return { error: "Something went wrong please try again" };
+	}
+};
+
 export const signOutUser = async () => {
-	const { account } = await createSessionClient();
+	const res = (await createSessionClient()) as any;
+	if (!res?.account) {
+		return null;
+	}
+	const { account } = res;
 
 	try {
 		await account.deleteSession("current");
