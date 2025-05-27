@@ -4,10 +4,9 @@ import { SidebarProvider, SidebarTrigger } from "@/components/ui/sidebar";
 import { AppSidebar } from "@/components/app-sidebar";
 import { getCurrentUser } from "@/lib/actions/users.action";
 import { redirect } from "next/navigation";
-import FileUpload from "@/components/file-upload";
 import Search from "@/components/search";
-import LogoutButton from "@/components/logout-button";
 import { Toaster } from "sonner";
+import { FileUpload } from "@/components/file-upload";
 
 export const metadata: Metadata = {
 	title: "Storage Drive",

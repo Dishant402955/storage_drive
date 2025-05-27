@@ -5,6 +5,7 @@ import { IoDocuments } from "react-icons/io5";
 import { FaImages } from "react-icons/fa";
 import { MdPermMedia } from "react-icons/md";
 import { GiPerspectiveDiceSixFacesRandom } from "react-icons/gi";
+import { Code } from "lucide-react";
 
 import {
 	Sidebar,
@@ -42,6 +43,11 @@ const items = [
 		title: "Media",
 		url: "/media",
 		icon: MdPermMedia,
+	},
+	{
+		title: "Source Code",
+		url: "/source-code",
+		icon: Code,
 	},
 	{
 		title: "Others",
