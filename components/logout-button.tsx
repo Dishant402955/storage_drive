@@ -1,25 +1,24 @@
-import React from "react";
+"use client";
+
 import { LogOut } from "lucide-react";
 import { signOutUser } from "@/lib/actions/users.action";
 import { Button } from "./ui/button";
 import { redirect } from "next/navigation";
 
-const LogoutButton = () => {
+const LogoutButton = ({ children }: { children: React.ReactNode }) => {
+	const handleSignOut = async () => {
+		await signOutUser();
+		redirect("/login");
+	};
 	return (
-		<div className="absolute right-8 top-8 cursor-pointer">
-			<form
-				action={async () => {
-					"use server";
-
-					await signOutUser();
-
-					redirect("/login");
-				}}
+		<div className="cursor-pointer">
+			<button
+				type="submit"
+				className="cursor-pointer w-full"
+				onClick={handleSignOut}
 			>
-				<Button type="submit" className="cursor-pointer">
-					<LogOut />
-				</Button>
-			</form>
+				{children}
+			</button>
 		</div>
 	);
 };

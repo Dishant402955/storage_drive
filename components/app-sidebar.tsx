@@ -20,8 +20,8 @@ import {
 import { usePathname } from "next/navigation";
 import Link from "next/link";
 import Image from "next/image";
+import { NavUser } from "@/components/nav-user";
 
-// Menu items.
 const items = [
 	{
 		title: "Dashboard",
@@ -50,19 +50,11 @@ const items = [
 	},
 ];
 
-export function AppSidebar({
-	fullName,
-	email,
-	Avatar,
-}: {
-	fullName: string;
-	email: string;
-	Avatar: string;
-}) {
+export function AppSidebar(user: any) {
 	const pathname = usePathname();
 
 	return (
-		<Sidebar>
+		<Sidebar collapsible="icon">
 			<SidebarContent>
 				<SidebarGroup>
 					<SidebarGroupLabel className="w-full text-2xl my-4 flex justify-center items-center">
@@ -98,7 +90,7 @@ export function AppSidebar({
 					</SidebarGroupContent>
 				</SidebarGroup>
 				<SidebarFooter>
-					<div className="flex justify-center flex-col items-start pl-8 w-full mt-10 gap-y-0.5">
+					{/* <div className="flex justify-center flex-col items-start pl-8 w-full mt-10 gap-y-0.5">
 						<Image
 							src={
 								Avatar ||
@@ -112,7 +104,8 @@ export function AppSidebar({
 
 						<p>{fullName}</p>
 						<p className="text-muted-foreground text-[0.9rem]"> {email}</p>
-					</div>
+					</div> */}
+					<NavUser user={user} />
 				</SidebarFooter>
 			</SidebarContent>
 		</Sidebar>
