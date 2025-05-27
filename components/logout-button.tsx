@@ -12,13 +12,13 @@ const LogoutButton = ({ children }: { children: React.ReactNode }) => {
 	};
 	return (
 		<div className="cursor-pointer">
-			<button
+			<Button
 				type="submit"
 				className="cursor-pointer w-full"
 				onClick={handleSignOut}
 			>
 				{children}
-			</button>
+			</Button>
 		</div>
 	);
 };
